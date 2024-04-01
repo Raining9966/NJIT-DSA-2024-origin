@@ -20,6 +20,9 @@ public class QueueImplementation<E> implements QueueInterface<E> {
         }
         this.capacity = capacity;
         this.itemArray = (E[]) new Object[capacity];
+        // Initialize head and tail in the parameterized constructor
+        this.head = 0;
+        this.tail = -1;
     }
 
     @Override
@@ -29,10 +32,11 @@ public class QueueImplementation<E> implements QueueInterface<E> {
 
     @Override
     public void enqueue(E element) throws QueueAllocationException, NullPointerException {
-        ensureCapacity();
+        // Check for null elements before reallocation
         if (element == null) {
             throw new NullPointerException("Cannot enqueue null into the queue.");
         }
+        ensureCapacity();
         tail = (tail + 1) % capacity;
         itemArray[tail] = element;
         current++;
@@ -44,6 +48,8 @@ public class QueueImplementation<E> implements QueueInterface<E> {
             throw new QueueIsEmptyException("Cannot dequeue from an empty queue.");
         }
         E returnE = element();
+        // Set the removed element to null
+        itemArray[head] = null;
         head = (head + 1) % capacity;
         current--;
         return returnE;
@@ -72,6 +78,10 @@ public class QueueImplementation<E> implements QueueInterface<E> {
         head = 0;
         tail = -1;
         current = 0;
+        // Optionally, clear the array to free up memory
+        for (int i = 0; i < capacity; i++) {
+            itemArray[i] = null;
+        }
     }
 
     @Override
@@ -108,3 +118,4 @@ public class QueueImplementation<E> implements QueueInterface<E> {
         }
     }
 }
+
