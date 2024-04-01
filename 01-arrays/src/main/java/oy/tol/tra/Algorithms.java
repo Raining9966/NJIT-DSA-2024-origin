@@ -1,52 +1,42 @@
 package oy.tol.tra;
 
-import java.util.Arrays;
-import java.util.Comparator;
-
-public class Grades<T extends Number & Comparable<T>> {
-
-    private T[] grades;
-    private Comparator<T> comparator;
-
-    public Grades(T[] grades, Comparator<T> comparator) {
-        if (grades == null || comparator == null) {
-            throw new IllegalArgumentException("Input array and comparator cannot be null.");
+public class Algorithms {
+    
+    public static <T extends Comparable<T>> void sort(T[] array) {
+        if (array == null || array.length <= 1) {
+            return;
         }
-        this.grades = grades.clone();
-        this.comparator = comparator;
-    }
-
-    public void reverse() {
-        for (int i = 0; i < grades.length / 2; i++) {
-            T temp = grades[i];
-            grades[i] = grades[grades.length - 1 - i];
-            grades[grades.length - 1 - i] = temp;
-        }
-    }
-
-    public void sort() {
-        Arrays.sort(grades, comparator);
-    }
-
-    public T[] getArray() {
-        return grades.clone();
-    }
-
-    public double calculateAverage() {
-        double sum = 0;
-        for (T grade : grades) {
-            sum += grade.doubleValue();
-        }
-        return sum / grades.length;
-    }
-
-    public T findHighestGrade() {
-        T highest = grades[0];
-        for (T grade : grades) {
-            if (grade.compareTo(highest) > 0) {
-                highest = grade;
+        
+        for (int i = 0; i < array.length - 1; i++) {
+            boolean flag = true;
+            for (int j = 0; j < array.length - 1 - i; j++) {
+                if (array[j].compareTo(array[j + 1]) > 0) {
+                    flag = false;
+                    swap(array, j, j + 1);
+                }
+            }
+            if (flag == true) {
+                break;
             }
         }
-        return highest;
+    }
+
+    public static <T> void reverse(T[] array) {
+        if (array == null || array.length <= 1) {
+            return;
+        }
+        
+        int i = 0;
+        while (i < array.length / 2) {
+            swap(array, i, array.length - i - 1);
+            i++;
+        }
+    }
+
+    private static <T> void swap(T[] array, int i, int j) {
+        T temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
     }
 }
+
