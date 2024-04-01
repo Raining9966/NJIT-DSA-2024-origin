@@ -27,10 +27,10 @@ public class StackImplementation<E> implements StackInterface<E> {
 
     @Override
     public void push(E element) throws StackAllocationException, NullPointerException {
-        ensureCapacity();
         if (element == null) {
             throw new NullPointerException("Cannot push null into the stack.");
         }
+        ensureCapacity();
         itemArray[++currentIndex] = element;
     }
 
@@ -39,7 +39,10 @@ public class StackImplementation<E> implements StackInterface<E> {
         if (isEmpty()) {
             throw new StackIsEmptyException("Cannot pop from an empty stack.");
         }
-        return itemArray[currentIndex--];
+        E poppedElement = itemArray[currentIndex];
+        itemArray[currentIndex] = null; // Remove the element from the internal storage
+        currentIndex--;
+        return poppedElement;
     }
 
     @Override
@@ -88,3 +91,4 @@ public class StackImplementation<E> implements StackInterface<E> {
         }
     }
 }
+
