@@ -1,5 +1,7 @@
 package oy.tol.tra;
 
+import java.util.Arrays;
+
 public class Grades<T extends Comparable<T>> {
 
     private T[] grades;
@@ -11,7 +13,7 @@ public class Grades<T extends Comparable<T>> {
         this.grades = grades.clone();
     }
 
-    public void reverse() {
+    protected void reverse() {
         int start = 0;
         int end = grades.length - 1;
 
@@ -24,7 +26,7 @@ public class Grades<T extends Comparable<T>> {
         }
     }
 
-    public void sort() {
+    protected void sort() {
         boolean swapped;
         do {
             swapped = false;
