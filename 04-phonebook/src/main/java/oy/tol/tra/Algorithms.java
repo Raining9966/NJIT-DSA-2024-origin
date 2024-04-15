@@ -1,140 +1,107 @@
 package oy.tol.tra;
-import java.util.function.Predicate;
-import java.util.Comparator;
 
-public  class Algorithms{
-        public static <T> void sortWithComparator(T[] arr, Comparator<? super T> comparator) {
-            int n = arr.length;
-            boolean swapped=false;;
-            while (swapped) {
-                //swapped = false;
-                for (int i = 0; i < n - 1; i++) {
-                    if (comparator.compare(arr[i], arr[i + 1]) > 0) {
-                        T temp = arr[i];
-                        arr[i] = arr[i + 1];
-                        arr[i + 1] = temp;
-                        swapped = true;
-                    }
-                }
-                n--;
-            }
-        }
-        private static <K extends Comparable<K>, V>  void swap(Pair<K, V>[] arr, int i, int j) {
-            Pair<K, V> temp = arr[i];
-            arr[i] = arr[j];
-            arr[j] = temp;
-        }
-    public static <K extends Comparable<K>, V>  void fastSort(Pair<K, V>[] arr) {
-        if (arr == null || arr.length == 0) {
-            return;
-        }
-        quickSort(arr, 0, arr.length - 1);
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.function.Predicate;
+
+public class Algorithms {
+    public static <T> void swap(T[] array, int index1, int index2) {
+        T tmp = array[index1];
+        array[index1] = array[index2];
+        array[index2] = tmp;
     }
-    private static <K extends Comparable<K>, V>  void quickSort(Pair<K, V>[] arr, int left, int right) {
-        if (left < right) {
-            int Index = partition(arr, left, right);
-            quickSort(arr, left, Index - 1);
-            quickSort(arr, Index + 1, right);
-        }
-    }
-    private static <K extends Comparable<K>, V>  int partition(Pair<K, V>[] arr, int left, int right) {
-        Pair<K, V> pivot = arr[right];
-        int i = left - 1;
-        for (int j = left; j < right; j++) {
-            if (((Comparable<K>) arr[j].getKey()).compareTo(pivot.getKey()) <= 0) {
-                i++;
-                swap(arr, i, j);
-            }
-        }
-        swap(arr, i + 1, right);
-        return i + 1;
-    }
-    public static <K extends Comparable<K>, V> int partitionByRule(Pair<K, V>[]arr,int count,Predicate<Pair<K, V>> rule)
-    {
-        for(int i=0;i<count;i++)
-        {
-            if(rule.test(arr[i]))
-            {
-                for(int j=i;j<count;j++)
-                {
-                    if(!rule.test(arr[j]))
-                    {
-                        arr[j]=arr[i];
-                        break;
-                    }
+
+    public static <T extends Comparable<T>> void sort(T[] array) {
+        for (int i = 0; i < array.length - 1; i++) {
+            for (int j = 0; j < array.length - i - 1; j++) {
+                if (array[j].compareTo(array[j + 1]) > 0) {
+                    swap(array, j, j + 1);
                 }
             }
         }
-        for(int i=0;i<count;i++)
-        {
-            if(rule.test(arr[i]))
-            {
-                return i;
-            }
-        }
-        return 0;
     }
-    public static <K extends Comparable<K>, V>void mergeSort(Pair<K, V>[] arr) {
-        if (arr == null || arr.length <= 1) {
-            return;
-        }
-        Pair<K, V>[] sorted = new Pair[arr.length];
-        mergeSort(arr, sorted, 0, arr.length - 1);
-    }
-    private static<K extends Comparable<K>, V> void mergeSort(Pair<K, V>[] arr, Pair<K, V>[] sorted, int start, int end) {
-        if (start < end) {
-            int mid = (start + end) / 2;
-            mergeSort(arr, sorted, start, mid);
-            mergeSort(arr, sorted, mid + 1, end);
-            merge(arr, sorted, start, mid, end);
+
+    public static <T> void reverse(T[] array) {
+        int left = 0;
+        int right = array.length - 1;
+        while (left < right) {
+            swap(array, left, right);
+            left++;
+            right--;
         }
     }
-    private static  <K extends Comparable<K>, V> void merge(Pair<K, V>[] arr, Pair<K, V>[] sorted, int start, int mid, int end) {
-        int i = start;
-        int j = mid + 1;
-        int k = start;
-        while (i <= mid && j <= end) {
-            if (arr[i].getKey().compareTo(arr[j].getKey()) <= 0) {
-                sorted[k++] = arr[i++];
+
+    public static <T extends Comparable<T>> int binarySearch(T aValue, T[] fromArray, int fromIndex, int toIndex) {
+        int mid;
+        while (fromIndex <= toIndex) {
+            mid = fromIndex + (toIndex - fromIndex) / 2;
+            if (aValue.compareTo(fromArray[mid]) > 0) {
+                fromIndex = mid + 1;
+            } else if (aValue.compareTo(fromArray[mid]) < 0) {
+                toIndex = mid - 1;
             } else {
-                sorted[k++] = arr[j++];
+                return mid;
             }
         }
-        while (i <= mid) {
-            sorted[k++] = arr[i++];
-        }
-        while (j <= end) {
-            sorted[k++] = arr[j++];
-        }
-        for (k = start; k <= end; k++) {
-            arr[k] = sorted[k];
-        }
+        return -1;
     }
-    public static <K extends Comparable<K>, V> void bubbleSort(Pair<K, V>[] arr) {
-        if (arr == null || arr.length == 0) {
+
+    public static <E extends Comparable<E>> void fastSort(E[] array) {
+        quickSort(array, 0, array.length - 1);
+    }
+
+    public static <E extends Comparable<E>> void quickSort(E[] array, int begin, int end) {
+        if (begin >= end) {
             return;
         }
-        int n = arr.length;
-        for (int i = 0; i < n - 1; i++) {
-            for (int j = 0; j < n - i - 1; j++) {
-                if (arr[j].compareTo(arr[j + 1]) > 0) {
-                    Pair<K, V> temp = arr[j];
-                    arr[j] = arr[j + 1];
-                    arr[j + 1] = temp;
-                }
+        int pivot = partition(array, begin, end);
+        quickSort(array, begin, pivot - 1);
+        quickSort(array, pivot + 1, end);
+    }
+
+    private static <E extends Comparable<E>> int partition(E[] array, int begin, int end) {
+        E p = array[begin];
+        int left = begin;
+        int right = end;
+        while (left != right) {
+            while ((left < right) && array[right].compareTo(p) > 0) {
+                right--;
+            }
+            while ((left < right) && array[left].compareTo(p) <= 0) {
+                left++;
+            }
+            if (left < right) {
+                swap(array, left, right);
             }
         }
+        array[begin] = array[left];
+        array[left] = p;
+        return left;
     }
-    public static <K extends Comparable<K>, V> void insertionSort (Pair<K, V>[] arr) {
-        int n = arr.length;
-        for (int i = 1; i < n; i++) {
-            Pair<K, V> key = arr[i];
-            int j = i - 1;
-            while (j >= 0 && arr[j].getKey().compareTo(key.getKey()) > 0) {
-                arr[j + 1] = arr[j];
-                j--;
+
+    public static <T> int partitionByRule(T[] pairs, int count, Predicate<T> judgeNullPredicate) {
+        int left = 0;
+        int right = count - 1;
+
+        while (left <= right) {
+            while (left <= right && !judgeNullPredicate.test(pairs[left])) {
+                left++;
             }
-            arr[j + 1] = key;
+
+            while (left <= right && judgeNullPredicate.test(pairs[right])) {
+                right--;
+            }
+
+            if (left < right) {
+                swap(pairs, left, right);
+                left++;
+                right--;
+            }
         }
+        return left;
     }
-  }
+
+    public static <T> void sortWithComparator(T[] array, Comparator<? super T> comparator) {
+        Arrays.sort(array, comparator);
+    }
+}
