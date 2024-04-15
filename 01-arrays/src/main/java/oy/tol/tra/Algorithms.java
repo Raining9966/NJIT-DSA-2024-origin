@@ -1,35 +1,31 @@
 package oy.tol.tra;
 
+
 public class Algorithms {
-    
     public static <T extends Comparable<T>> void sort(T[] array) {
-        if (array == null || array.length <= 1) {
-            return;
-        }
-        
-        for (int i = 0; i < array.length - 1; i++) {
-            boolean flag = true;
-            for (int j = 0; j < array.length - 1 - i; j++) {
-                if (array[j].compareTo(array[j + 1]) > 0) {
-                    flag = false;
-                    swap(array, j, j + 1);
+        int n = array.length;
+        boolean swapped = true;
+
+        while(swapped) {
+            swapped = false;
+            for (int i = 1; i < n; i++) {
+                if (array[i - 1].compareTo(array[i]) > 0) {
+                    swap(array, i - 1, i);
+                    swapped = true;
                 }
-            }
-            if (flag == true) {
-                break;
             }
         }
     }
 
     public static <T> void reverse(T[] array) {
-        if (array == null || array.length <= 1) {
-            return;
-        }
-        
-        int i = 0;
-        while (i < array.length / 2) {
-            swap(array, i, array.length - i - 1);
-            i++;
+        reverse(array, 0, array.length - 1);
+    }
+
+    private static <T> void reverse(T[] array, int left, int right) {
+        while (left < right) {
+            swap(array, left, right);
+            left++;
+            right--;
         }
     }
 
@@ -39,4 +35,3 @@ public class Algorithms {
         array[j] = temp;
     }
 }
-
