@@ -1,8 +1,7 @@
 package oy.tol.tra;
 
-import java.util.Arrays;
-
 public class KeyValueHashTable<K extends Comparable<K>, V> implements Dictionary<K, V> {
+
 
     private Pair<K, V>[] values = null;
     private int count = 0;
@@ -10,7 +9,7 @@ public class KeyValueHashTable<K extends Comparable<K>, V> implements Dictionary
     private int maxProbingSteps = 0;
     private int reallocationCount = 0;
     private static final double LOAD_FACTOR = 0.45;
-    private static final int DEFAULT_CAPACITY = 1000;
+    private static final int DEFAULT_CAPACITY = 20;
 
     public KeyValueHashTable(int capacity) throws OutOfMemoryError {
         ensureCapacity(capacity);
@@ -43,6 +42,7 @@ public class KeyValueHashTable<K extends Comparable<K>, V> implements Dictionary
         return count;
     }
 
+
     @Override
     public String getStatus() {
         StringBuilder builder = new StringBuilder();
@@ -57,66 +57,98 @@ public class KeyValueHashTable<K extends Comparable<K>, V> implements Dictionary
 
     @Override
     public boolean add(K key, V value) throws IllegalArgumentException, OutOfMemoryError {
-        if (key == null || value == null) {
-            throw new IllegalArgumentException("Key or value cannot be null.");
+        // Remeber to check for null values.
+        if(key==null||value==null){
+            throw new IllegalArgumentException("the key and value can not be null");
         }
-        if (((double) count * (1.0 + LOAD_FACTOR)) >= values.length) {
-            reallocate((int) ((double) (values.length) * (1.0 / LOAD_FACTOR)));
+        if (((double)count * (1.0 + LOAD_FACTOR)) >= values.length) {
+            reallocate((int)((double)(values.length) * (1.0 / LOAD_FACTOR)));
         }
-
-        int index = Math.abs(key.hashCode()) % values.length;
-        if (values[index] == null) {
-            values[index] = new Pair<>(key, value);
-            count++;
-        } else if (values[index].getKey().equals(key)) {
-            values[index].setValue(value);
-        } else {
-            for (int i = index + 1; i < values.length; i++) {
-                if (values[i] == null) {
-                    values[i] = new Pair<>(key, value);
-                    count++;
-                    break;
-                } else if (values[i].getKey().equals(key)) {
-                    values[i].setValue(value);
-                    break;
-                }
+        int hash=key.hashCode();
+        int index=hash%values.length;
+        if(index<0){
+            index+=values.length;
+        }
+        int tmpIndex;
+        for(int i=0;;i++){
+            tmpIndex=(index+i*i)%values.length;
+            if(values[tmpIndex]==null){
+                values[tmpIndex]=new Pair<K,V>(key, value);
+                count++;
+                return true;
+            }else if(values[tmpIndex].getKey().equals(key)){
+                values[tmpIndex].setValue(value);
+                return true;
+            }
+            collisionCount++;
+            if(i>maxProbingSteps){
+                maxProbingSteps=i;
             }
         }
-        return true;
+        
+
     }
 
     @Override
     public V find(K key) throws IllegalArgumentException {
-        if (key == null) {
-            throw new IllegalArgumentException("Key cannot be null.");
+        if(key==null){
+            throw new IllegalArgumentException("the key cannot be null");
         }
-        int index = Math.abs(key.hashCode()) % values.length;
-        if (values[index] == null) {
-            return null;
-        } else if (values[index].getKey().equals(key)) {
-            return values[index].getValue();
-        } else {
-            for (int i = index + 1; i < values.length; i++) {
-                if (values[i] == null) {
-                    return null;
-                } else if (values[i].getKey().equals(key)) {
-                    return values[i].getValue();
-                }
+        int hash=key.hashCode();
+        int index=hash%values.length;
+        if(index<0){
+            index+=values.length;
+        }
+        int tmpIndex;
+        for(int i=0;;i++){
+            tmpIndex=(index+i*i)%values.length;
+            if(values[tmpIndex]==null){
+                return null;
+            }else if(values[tmpIndex].getKey().equals(key)){
+                return values[tmpIndex].getValue();
             }
         }
-        return null;
     }
 
-    private void reallocate(int newCapacity) throws OutOfMemoryError {
-        Pair<K, V>[] oldValues = values;
-        values = (Pair<K, V>[]) new Pair[newCapacity];
+    @Override
+    @java.lang.SuppressWarnings({"unchecked"})
+    public Pair<K,V> [] toSortedArray() {
+        Pair<K, V> [] sorted = (Pair<K,V>[])new Pair[count];
+        int newIndex = 0;
+        for (int index = 0; index < values.length; index++) {
+           if (values[index] != null) {
+              sorted[newIndex++] = new Pair<>(values[index].getKey(), values[index].getValue());
+           }
+        }
+        Algorithms.fastSort(sorted);
+        return sorted;
+      }
+
+    @SuppressWarnings("unchecked")
+    private void reallocate(int newSize) throws OutOfMemoryError {
+        if (newSize < DEFAULT_CAPACITY) {
+            newSize = DEFAULT_CAPACITY;
+        }
         reallocationCount++;
+        Pair<K, V>[] oldPairs = values;
+        this.values = (Pair<K, V>[]) new Pair[(int)((double)newSize * (1.0 + LOAD_FACTOR))];
         count = 0;
-        for (Pair<K, V> pair : oldValues) {
-            if (pair != null) {
-                add(pair.getKey(), pair.getValue());
+        collisionCount = 0;
+        maxProbingSteps = 0;
+        for (int index = 0; index < oldPairs.length; index++) {
+            if (oldPairs[index] != null) {
+                add(oldPairs[index].getKey(), oldPairs[index].getValue());
             }
         }
     }
+
+    @Override
+    public void compress() throws OutOfMemoryError {
+        int newCapacity = (int)(count * (1.0 / LOAD_FACTOR));
+		    if (newCapacity < values.length) {
+			      reallocate(newCapacity);
+		    } 
+    }
+ 
 }
 
